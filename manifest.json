@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "AI Studio Auto Toggle",
+  "version": "1.0",
+  "description": "Automatically toggle incognito mode on AI Studio new chat page",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://aistudio.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Studio Auto Toggle"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://aistudio.google.com/prompts/new_chat"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
