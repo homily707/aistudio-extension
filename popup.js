@@ -1,38 +1,59 @@
 // popup.js 
 
 document.addEventListener('DOMContentLoaded', function() {
-  const defaultModeSelect = document.getElementById('default-mode');
-  const statusDiv = document.getElementById('status');
+  const incognitoToggle = document.getElementById('incognito-toggle');
+  const systemInstructions = document.getElementById('system-instructions');
   
-  // 从 chrome.storage 获取默认模式设置
+  // 从 chrome.storage 获取设置
   chrome.storage.sync.get({
-    defaultMode: 'incognito' // 默认值
+    defaultMode: 'incognito', // 默认值
+    defaultSystemInstructions: '' // 默认系统指令为空
   }, function(items) {
-    defaultModeSelect.value = items.defaultMode;
-    updateStatus(items.defaultMode);
+    // 设置复选框状态
+    incognitoToggle.checked = (items.defaultMode === 'incognito');
+    // 设置系统指令文本
+    systemInstructions.value = items.defaultSystemInstructions || '';
   });
   
-  // 监听下拉选择框的变化
-  defaultModeSelect.addEventListener('change', function() {
-    const newMode = this.value;
+  // 为复选框添加 change 事件
+  incognitoToggle.addEventListener('change', function() {
+    const mode = this.checked ? 'incognito' : 'normal';
     
-    // 将新的模式保存到 chrome.storage
+    // 将模式保存到 chrome.storage
     chrome.storage.sync.set({
-      defaultMode: newMode
+      defaultMode: mode
     }, function() {
-      console.log('设置默认模式:', newMode);
-      updateStatus(newMode);
+      console.log('设置默认模式:', mode);
     });
   });
   
-  // 更新状态显示
-  function updateStatus(mode) {
-    if (mode === 'incognito') {
-      statusDiv.textContent = '隐身模式已启用';
-      statusDiv.className = 'status enabled';
-    } else {
-      statusDiv.textContent = '普通模式已启用';
-      statusDiv.className = 'status disabled';
-    }
-  }
+  // 为系统指令文本框添加 input 事件
+  let saveTimeout;
+  systemInstructions.addEventListener('input', function() {
+    // 防抖处理，避免频繁保存
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      const instructions = this.value;
+      
+      // 将系统指令保存到 chrome.storage
+      chrome.storage.sync.set({
+        defaultSystemInstructions: instructions
+      }, function() {
+        console.log('已保存默认系统指令');
+      });
+    }, 500); // 500ms 后保存
+  });
+  
+  // 也可以在失去焦点时立即保存
+  systemInstructions.addEventListener('blur', function() {
+    clearTimeout(saveTimeout); // 清除防抖定时器
+    const instructions = this.value;
+    
+    // 将系统指令保存到 chrome.storage
+    chrome.storage.sync.set({
+      defaultSystemInstructions: instructions
+    }, function() {
+      console.log('已保存默认系统指令');
+    });
+  });
 });

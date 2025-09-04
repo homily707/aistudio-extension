@@ -18,7 +18,7 @@
     {
       "matches": ["https://aistudio.google.com/prompts/new_chat"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ]
 }
